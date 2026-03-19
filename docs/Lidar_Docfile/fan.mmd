@@ -1,0 +1,11 @@
+flowchart TD
+
+A[Send Fan Command] --> B[CAN_SendFanCommand]
+
+B --> C[twai_transmit]
+
+C --> D{Transmit OK?}
+
+D -- Yes --> E[Fan Command Sent]
+
+D -- No --> F[SYS_STATE_FAN_TX_ERROR]

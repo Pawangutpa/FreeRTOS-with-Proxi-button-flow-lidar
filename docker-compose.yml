@@ -1,0 +1,10 @@
+version: "1.0.0"
+
+services:
+  firmware:
+    build: .
+    container_name: firmware_development
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    tty: true

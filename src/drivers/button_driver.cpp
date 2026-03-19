@@ -1,36 +1,33 @@
 #include <Arduino.h>
 #include "drivers/button_driver.h"
 #include "rtos/rtos_events.h"
+#include "state_machine/button_state_machine.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include "config/board_config.h"
 
-/* ==============================
+/* ==========================================================
    DRIVER INIT
-   ============================== */
+   ========================================================== */
+
 void Button_Driver_Init(void)
 {
     pinMode(BUTTON_AUTONOMOUS_PIN, INPUT_PULLUP);
     pinMode(BUTTON_LEFT_PIN, INPUT_PULLUP);
     pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
     pinMode(BUTTON_BOTH_PIN, INPUT_PULLUP);
-
-    Serial.println("Button Driver Started");
 }
 
-/* ==============================
+/* ==========================================================
    BUTTON TASK
-   ============================== */
+   ========================================================== */
+
 void ButtonTask(void *pvParameters)
 {
     bool lastAutonomousState = false;
 
     while (true)
     {
-        /* -------------------------
-           READ BUTTON STATES
-        ------------------------- */
-
         bool autonomousPressed =
             (digitalRead(BUTTON_AUTONOMOUS_PIN) == LOW);
 
@@ -43,9 +40,9 @@ void ButtonTask(void *pvParameters)
         bool bothPressed =
             (digitalRead(BUTTON_BOTH_PIN) == LOW);
 
-        /* -------------------------
-           MODE SELECTION
-        ------------------------- */
+        /* ==========================================================
+           MODE CONTROL
+           ========================================================== */
 
         if (autonomousPressed != lastAutonomousState)
         {
@@ -59,7 +56,7 @@ void ButtonTask(void *pvParameters)
                     g_systemEventGroup,
                     SYSTEM_BIT_MANUAL);
 
-                Serial.println("Mode: AUTONOMOUS");
+                SetButtonState(BUTTON_STATE_AUTONOMOUS);
             }
             else
             {
@@ -71,25 +68,24 @@ void ButtonTask(void *pvParameters)
                     g_systemEventGroup,
                     SYSTEM_BIT_AUTONOMOUS);
 
-                Serial.println("Mode: MANUAL");
+                SetButtonState(BUTTON_STATE_MANUAL);
             }
 
             lastAutonomousState = autonomousPressed;
         }
 
-        /* -------------------------
-           MANUAL SPRAY CONTROL
-           (Only active in MANUAL mode)
-        ------------------------- */
+        /* ==========================================================
+           MANUAL CONTROL
+           ========================================================== */
 
         EventBits_t bits =
             xEventGroupGetBits(g_systemEventGroup);
 
-        bool manualMode = (bits & SYSTEM_BIT_MANUAL);
+        bool manualMode =
+            (bits & SYSTEM_BIT_MANUAL);
 
         if (manualMode)
         {
-            /* Clear all spray bits first */
             xEventGroupClearBits(
                 g_systemEventGroup,
                 SYSTEM_BIT_LEFT |
@@ -102,7 +98,7 @@ void ButtonTask(void *pvParameters)
                     g_systemEventGroup,
                     SYSTEM_BIT_BOTH);
 
-                Serial.println("Manual: BOTH");
+                SetButtonState(BUTTON_STATE_MANUAL_BOTH);
             }
             else
             {
@@ -112,7 +108,7 @@ void ButtonTask(void *pvParameters)
                         g_systemEventGroup,
                         SYSTEM_BIT_LEFT);
 
-                    Serial.println("Manual: LEFT");
+                    SetButtonState(BUTTON_STATE_MANUAL_LEFT);
                 }
 
                 if (rightPressed)
@@ -121,13 +117,12 @@ void ButtonTask(void *pvParameters)
                         g_systemEventGroup,
                         SYSTEM_BIT_RIGHT);
 
-                    Serial.println("Manual: RIGHT");
+                    SetButtonState(BUTTON_STATE_MANUAL_RIGHT);
                 }
             }
         }
         else
         {
-            /* In autonomous mode → clear manual spray bits */
             xEventGroupClearBits(
                 g_systemEventGroup,
                 SYSTEM_BIT_LEFT |
@@ -135,7 +130,6 @@ void ButtonTask(void *pvParameters)
                 SYSTEM_BIT_BOTH);
         }
 
-        /* 100ms polling */
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }

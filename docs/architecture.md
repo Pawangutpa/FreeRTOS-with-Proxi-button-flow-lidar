@@ -20,3 +20,26 @@ SprayTask
 
 Future:
 EC200U → MQTTTask → SDTask → OTATask
+
+
+//lidar
+
+              +----------------------+
+              |  StateMachineTask    |
+              |  Monitor States      |
+              +----------+-----------+
+                         |
+                         v
++------------------+     +------------------+
+|  CAN Driver      |---->|   LidarTask      |
+|  Init + Start    |     |  Frame Process   |
++------------------+     +--------+---------+
+                                   |
+                                   v
+                          +----------------+
+                          |  RTOS Queue    |
+                          |  g_lidarQueue  |
+                          +----------------+
+                                   |
+                                   v
+                            Spray Controller

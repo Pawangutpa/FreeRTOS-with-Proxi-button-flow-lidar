@@ -1,0 +1,47 @@
+flowchart TD
+
+A[System Boot] --> B[SYS_STATE_INIT]
+
+B --> C[CAN_Driver_Init Called]
+
+C --> D[Set State: SYS_STATE_CAN_INIT]
+
+D --> E{twai_driver_install OK?}
+
+E -- No --> F[SYS_STATE_CAN_START_FAILED]
+E -- Yes --> G[SYS_STATE_LIDAR_WAIT]
+
+G --> H{twai_start OK?}
+
+H -- No --> F
+H -- Yes --> I[SYS_STATE_CAN_STARTED]
+
+I --> J[LidarTask Start]
+
+J --> K[SYS_STATE_RUNNING]
+
+K --> L[Wait CAN Message]
+
+L --> M{Message Received?}
+
+M -- No --> L
+
+M -- Yes --> N[Extract Distance + Strength]
+
+N --> O{Sensor ID?}
+
+O -- LEFT --> P[ProcessLidarSensor LEFT]
+O -- RIGHT --> Q[ProcessLidarSensor RIGHT]
+
+P --> R
+Q --> R
+
+R[Median Filter + N-of-M Validation]
+
+R --> S{Queue Available?}
+
+S -- No --> T[SYS_STATE_QUEUE_ERROR]
+
+S -- Yes --> U[xQueueOverwrite lidar_data]
+
+U --> L

@@ -1,0 +1,46 @@
+{
+  "name": "simdaas-autonomy-core",
+  "version": "1.0.0",
+  "description": "Core embedded library for Simdaas Autonomy systems including drivers, communication, and system services.",
+  "keywords": [
+    "embedded",
+    "autonomy",
+    "esp32",
+    "stm32",
+    "iot",
+    "rtos",
+    "mqtt",
+    "drivers"
+  ],
+  "homepage": "https://github.com/simdaas-autonomy/simdaas-autonomy-core",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simdaas-autonomy/simdaas-autonomy-core.git"
+  },
+  "authors": [
+    {
+      "name": "Simdaas Autonomy Private Limited",
+      "email": "support@simdaas.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": [
+    "arduino",
+    "espidf"
+  ],
+  "platforms": [
+    "espressif32",
+    "ststm32"
+  ],
+  "build": {
+    "includeDir": "include",
+    "srcDir": "src"
+  },
+  "dependencies": [
+    {
+      "name": "ArduinoJson",
+      "version": "^6.21.3"
+    }
+  ]
+}

@@ -127,7 +127,7 @@ void SprayTask(void* pvParameters)
 
         static bool lastFanState = false;
 
-        bool fanState = autonomous ? true : false;
+        bool fanState = true;   // Always ON
 
         if (fanState != lastFanState)
         {

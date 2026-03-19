@@ -11,5 +11,4 @@
  */
 extern QueueHandle_t g_lidarQueue;
 extern QueueHandle_t g_proxiQueue;
-extern QueueHandle_t g_mqttPublishQueue;
 #endif

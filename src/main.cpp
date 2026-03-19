@@ -16,8 +16,7 @@ void setup()
 }
 
 void loop()
-{
-     
+{    
     /*
      * Nothing here.
      * FreeRTOS scheduler handles everything.
